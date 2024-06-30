@@ -8,6 +8,7 @@ class Quiz(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
+    share_link = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.title

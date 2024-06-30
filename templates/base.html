@@ -1,34 +1,40 @@
 {%load static%}
 
+<!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}QUIZLAB{%endblock%}</title>
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <title>{% block title %}QuizApp{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Quiz Application</h1>
-        <nav>
-            <ul>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Register</a></li>
-                {% endif %}
-            </ul>
-        </nav>
+    <header class="bg-dark text-white p-3">
+        <div class="container">
+            <h1>Quiz Application</h1>
+            <nav>
+                <ul class="nav">
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'quiz_list' %}">Home</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'login' %}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'register' %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
     </header>
-    <main>
+    <main class="container mt-4">
         {% block content %}
         {% endblock %}
     </main>
-    <footer>
-        <p>&copy; 2024 QuizApp</p>
+    <footer class="bg-dark text-white text-center p-3 mt-4">
+        <div class="container">
+            <p>&copy; 2024 QuizApp</p>
+        </div>
     </footer>
-    
 </body>
 </html>
