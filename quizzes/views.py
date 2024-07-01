@@ -103,3 +103,7 @@ def take_quiz(request, quiz_id):
 def quiz_result(request, result_id):
     result = Result.objects.get(id=result_id)
     return render(request, 'quiz_result.html', {'result': result})
+@login_required
+def quiz_list(request):
+    quizzes = Quiz.objects.filter(created_by=request.user) | Quiz.objects.filter(is_public=True)
+    return render(request, 'quiz_list.html', {'quizzes': quizzes})
