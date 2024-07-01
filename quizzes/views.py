@@ -6,6 +6,8 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from .forms import ChoiceForm, QuestionForm, Quizform
 from .models import Quiz, Question, Choice
+from django import forms
+
 
 def register(request):
     if request.method == 'POST':
@@ -73,3 +75,18 @@ def add_choices(request, question_id):
     else:
         formset = ChoiceFormSet(instance=question)
     return render(request, 'quizzes/add_choices.html', {'question': question, 'formset': formset})
+
+
+
+class TakeQuizForm(forms.form):
+    def __init__(self, *args, **kwargs):
+        quiz = kwargs.pop('quiz')
+        super().__init__(*args, **kwargs)
+        for question in quiz.questions.all():
+            choices = [(choice.id, choice.text) for choice in question.choices.all()]
+            self.fields[f'question_{question.id}'] = forms.ChoiceField(
+                label=question.text,
+                choices=choices,
+                widget=forms.RadioSelect,
+                required=True
+            )
