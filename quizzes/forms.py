@@ -1,7 +1,7 @@
 from django import forms
 from .models import Quiz, Question, Choice
 
-class Quizform(forms.Modelform):
+class Quizform(forms.ModelForm):
     class Meta:
         model = Quiz
         fields = ['title', 'description', 'is_public']
