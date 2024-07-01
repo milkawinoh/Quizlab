@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from .forms import ChoiceForm, QuestionForm, Quizform
-from .models import Quiz, Question, Choice
+from .forms import ChoiceForm, QuestionForm, Quizform, TakeQuizForm
+from .models import Quiz, Question, Choice, Result
 from django import forms
 
 
@@ -77,16 +77,29 @@ def add_choices(request, question_id):
     return render(request, 'quizzes/add_choices.html', {'question': question, 'formset': formset})
 
 
-
-class TakeQuizForm(forms.form):
-    def __init__(self, *args, **kwargs):
-        quiz = kwargs.pop('quiz')
-        super().__init__(*args, **kwargs)
-        for question in quiz.questions.all():
-            choices = [(choice.id, choice.text) for choice in question.choices.all()]
-            self.fields[f'question_{question.id}'] = forms.ChoiceField(
-                label=question.text,
-                choices=choices,
-                widget=forms.RadioSelect,
-                required=True
+@login_required
+def take_quiz(request, quiz_id):
+    quiz = Quiz.objects.get(id=quiz_id)
+    if request.method == 'POST':
+        form = TakeQuizForm(request.POST, quiz=quiz)
+        if form.is_valid():
+            score = 0
+            for question in quiz.questions.all():
+                selected_choice_id = int(form.cleaned_data[f'question_{question.id}'])
+                selected_choice = Choice.objects.get(id=selected_choice_id)
+                if selected_choice.is_correct:
+                    score += 1
+            result = Result.objects.create(
+                quiz=quiz,
+                user=request.user,
+                score=score
             )
+            return redirect('quiz_result', result_id=result.id)
+    else:
+        form = TakeQuizForm(quiz=quiz)
+    return render(request, 'take_quiz.html', {'quiz': quiz, 'form': form})
+
+@login_required
+def quiz_result(request, result_id):
+    result = Result.objects.get(id=result_id)
+    return render(request, 'quiz_result.html', {'result': result})
