@@ -1,19 +1,45 @@
-<!-- templates/quizzes/add_question.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h3>Add Question to "{{ quiz.title }}"</h3>
+<div class="container">
+    <h2 class="my-4">Add Questions and Choices to "{{ quiz.title }}"</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ question_form.as_p }}
         </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                {{ question_form.as_p }}
-                <button type="submit" class="btn btn-success">Add Question</button>
-            </form>
+        <h3>Choices</h3>
+        <div id="choices">
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
         </div>
-    </div>
+        <button type="button" id="add-choice" class="btn btn-secondary">Add Choice</button>
+        <button type="submit" class="btn btn-primary">Save Question and Choices</button>
+    </form>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const choicesDiv = document.getElementById("choices");
+    const addChoiceBtn = document.getElementById("add-choice");
+
+    addChoiceBtn.addEventListener("click", function() {
+        const formIdx = choicesDiv.querySelectorAll(".form-group").length;
+        const newChoiceForm = choicesDiv.querySelector(".form-group").cloneNode(true);
+        newChoiceForm.innerHTML = newChoiceForm.innerHTML.replace(/__prefix__/g, formIdx);
+        choicesDiv.appendChild(newChoiceForm);
+    });
+    
+    document.querySelectorAll('textarea').forEach(function(textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+});
+</script>
 {% endblock %}

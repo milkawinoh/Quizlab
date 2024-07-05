@@ -1,4 +1,3 @@
-# quizzes/views.py
 from django import forms
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -7,8 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from .forms import ChoiceForm, QuestionForm, Quizform, TakeQuizForm
 from .models import Quiz, Question, Choice, Result
-from django import forms
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, UpdateView
 
 def register(request):
     if request.method == 'POST':
@@ -53,30 +51,25 @@ def create_quiz(request):
 @login_required
 def add_question(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)
+    ChoiceFormSet = forms.inlineformset_factory(Question, Choice, form=ChoiceForm, extra=3)
     if request.method == 'POST':
         question_form = QuestionForm(request.POST)
-        if question_form .is_valid():
+        formset = ChoiceFormSet(request.POST)
+        if question_form.is_valid() and formset.is_valid():
             question = question_form.save(commit=False)
             question.quiz = quiz
             question.save()
-            return redirect('add_choice', question_id = question.id)
+            formset.instance = question
+            formset.save()
+            return redirect('add_question', quiz_id=quiz.id)  # Stay on the same page to add more questions and choices
     else:
         question_form = QuestionForm()
-        return render(request, 'quizzes/add_questions.html', {'quiz': quiz, 'question_form': question_form})
-
-@login_required
-def add_choices(request, question_id):
-    question = Question.objects.get(id=question_id)
-    ChoiceFormSet = forms.inlineformset_factory(Question, Choice, form=ChoiceForm, extra=3)
-    if request.method == 'POST':
-        formset = ChoiceFormSet(request.POST, instance=question)
-        if formset.is_valid():
-            formset.save()
-            return redirect('add_questions', quiz_id=question.quiz.id)
-    else:
-        formset = ChoiceFormSet(instance=question)
-    return render(request, 'quizzes/add_choices.html', {'question': question, 'formset': formset})
-
+        formset = ChoiceFormSet()
+    return render(request, 'quizzes/add_question.html', {
+        'quiz': quiz,
+        'question_form': question_form,
+        'formset': formset
+    })
 
 @login_required
 def take_quiz(request, quiz_id):
@@ -100,28 +93,24 @@ def take_quiz(request, quiz_id):
         form = TakeQuizForm(quiz=quiz)
     return render(request, 'quizzes/take_quiz.html', {'quiz': quiz, 'form': form})
 
-
 @login_required
 def quiz_result(request, result_id):
     result = Result.objects.get(id=result_id)
     return render(request, 'quizzes/quiz_result.html', {'result': result})
+
 @login_required
 def quiz_list(request):
     quizzes = Quiz.objects.filter(created_by=request.user) | Quiz.objects.filter(is_public=True)
     return render(request, 'quizzes/quiz_list.html', {'quizzes': quizzes})
 
+@login_required
+def my_quizzes(request):
+    user_quizzes = Quiz.objects.filter(created_by=request.user)
+    return render(request, 'quizzes/my_quizzes.html', {'quizzes': user_quizzes})
+
 def quiz_detail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     return render(request, 'quizzes/quiz_detail.html', {'quiz': quiz})
-
-
-class QuestionDeleteView(DeleteView):
-    model = Question
-    template_name = 'quizzes/delete_question.html'
-
-    def get_success_url(self):
-        return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
-from django.views.generic.edit import UpdateView
 
 class QuestionUpdateView(UpdateView):
     model = Question
@@ -130,9 +119,10 @@ class QuestionUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
-@login_required
-def my_quizzes(request):
-    user_quizzes = Quiz.objects.filter(created_by=request.user)
-    return render(request, 'quizzes/my_quizzes.html', {'quizzes': user_quizzes})
 
-    
+class QuestionDeleteView(DeleteView):
+    model = Question
+    template_name = 'quizzes/delete_question.html'
+
+    def get_success_url(self):
+        return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
