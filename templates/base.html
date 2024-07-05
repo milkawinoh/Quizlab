@@ -24,6 +24,7 @@
                             <a class="nav-link text-white" href="{% url 'quiz_list' %}">Home</a>
                         </li>
                         {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'my_quizzes' %}">My Quizzes</a></li>
                         <li class="nav-item">
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
