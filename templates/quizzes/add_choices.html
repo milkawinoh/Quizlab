@@ -1,0 +1,16 @@
+<!-- templates/quizzes/add_choices.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Add Choices to Question: {{ question.text }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {{ form.as_p }}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save Choices</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,6 +1,9 @@
-
 from django.urls import path
-from .views import login_view, register, quiz_list, take_quiz, quiz_result, create_quiz, add_question, add_choices, quiz_detail, QuestionUpdateView, QuestionDeleteView
+from .views import (
+    login_view, register, quiz_list, take_quiz, quiz_result, 
+    create_quiz, add_question, add_choices, quiz_detail, 
+    QuestionUpdateView, QuestionDeleteView
+)
 
 urlpatterns = [
     path('', quiz_list, name='quiz_list'),
@@ -15,4 +18,3 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('signup/', register, name='signup'),
 ]
-

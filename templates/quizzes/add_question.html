@@ -1,0 +1,13 @@
+<!-- templates/quizzes/add_question.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">Add Questions to Quiz: {{ quiz.title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ question_form.as_p }}
+        <button type="submit" class="btn btn-primary">Add Question</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,13 +1,34 @@
+<!-- templates/quizzes/create_quiz.html -->
 {% extends 'base.html' %}
-    
-{% block title %}Create New Quiz{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h2 class="my-4">Create New Quiz</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Create Quiz</button>
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="my-2">Create a New Quiz</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_title">Title</label>
+                            <input type="text" name="title" class="form-control" id="id_title" placeholder="Enter quiz title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_description">Description</label>
+                            <textarea name="description" class="form-control" id="id_description" rows="3" placeholder="Enter quiz description"></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="is_public" class="form-check-input" id="id_is_public">
+                            <label class="form-check-label" for="id_is_public">Make this quiz public</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Create Quiz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
