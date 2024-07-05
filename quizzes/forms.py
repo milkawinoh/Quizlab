@@ -15,7 +15,7 @@ class ChoiceForm(forms.ModelForm):
         fields = ['text', 'is_correct']
 
 
-class TakeQuizForm(forms.form):
+class TakeQuizForm(forms.Form):
     def __init__(self, *args, **kwargs):
         quiz = kwargs.pop('quiz')
         super().__init__(*args, **kwargs)

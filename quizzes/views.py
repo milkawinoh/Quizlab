@@ -1,13 +1,14 @@
 # quizzes/views.py
 from django import forms
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
 from .forms import ChoiceForm, QuestionForm, Quizform, TakeQuizForm
 from .models import Quiz, Question, Choice, Result
 from django import forms
-
+from django.views.generic.edit import DeleteView
 
 def register(request):
     if request.method == 'POST':
@@ -97,13 +98,36 @@ def take_quiz(request, quiz_id):
             return redirect('quiz_result', result_id=result.id)
     else:
         form = TakeQuizForm(quiz=quiz)
-    return render(request, 'take_quiz.html', {'quiz': quiz, 'form': form})
+    return render(request, 'quizzes/take_quiz.html', {'quiz': quiz, 'form': form})
+
 
 @login_required
 def quiz_result(request, result_id):
     result = Result.objects.get(id=result_id)
-    return render(request, 'quiz_result.html', {'result': result})
+    return render(request, 'quizzes/quiz_result.html', {'result': result})
 @login_required
 def quiz_list(request):
     quizzes = Quiz.objects.filter(created_by=request.user) | Quiz.objects.filter(is_public=True)
-    return render(request, 'quiz_list.html', {'quizzes': quizzes})
+    return render(request, 'quizzes/quiz_list.html', {'quizzes': quizzes})
+
+def quiz_detail(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    return render(request, 'quizzes/quiz_detail.html', {'quiz': quiz})
+
+
+class QuestionDeleteView(DeleteView):
+    model = Question
+    template_name = 'quizzes/delete_question.html'
+
+    def get_success_url(self):
+        return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
+from django.views.generic.edit import UpdateView
+
+class QuestionUpdateView(UpdateView):
+    model = Question
+    fields = ['text']
+    template_name = 'quizzes/edit_question.html'
+
+    def get_success_url(self):
+        return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
+    
