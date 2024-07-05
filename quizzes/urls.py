@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    login_view, register, quiz_list, take_quiz, quiz_result, 
+    login_view, my_quizzes, register, quiz_list, take_quiz, quiz_result, 
     create_quiz, add_question, add_choices, quiz_detail, 
     QuestionUpdateView, QuestionDeleteView
 )
@@ -17,4 +17,5 @@ urlpatterns = [
     path('quiz/<int:pk>/delete/', QuestionDeleteView.as_view(), name='delete_quiz'),
     path('login/', login_view, name='login'),
     path('signup/', register, name='signup'),
+    path('my-quizzes/', my_quizzes, name='my_quizzes'),
 ]

@@ -130,4 +130,9 @@ class QuestionUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('quiz_detail', args=[self.object.quiz.id])
+@login_required
+def my_quizzes(request):
+    user_quizzes = Quiz.objects.filter(created_by=request.user)
+    return render(request, 'quizzes/my_quizzes.html', {'quizzes': user_quizzes})
+
     

@@ -1,8 +1,31 @@
+<!-- templates/quizzes/take_quiz.html -->
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container">
-    <h2>Quiz Result: {{ result.quiz.title }}</h2>
-    <p>Score: {{ result.score }} / {{ result.quiz.questions.count }}</p>
-    <a href="{% url 'quiz_list' %}" class="btn btn-primary">Back to Quizzes</a>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>{{ quiz.title }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for question in quiz.questions.all %}
+                <div class="mb-3">
+                    <h5>{{ question.text }}</h5>
+                    {% for choice in question.choices.all %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="choice_{{ choice.id }}" value="{{ choice.id }}" required>
+                        <label class="form-check-label" for="choice_{{ choice.id }}">
+                            {{ choice.text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
