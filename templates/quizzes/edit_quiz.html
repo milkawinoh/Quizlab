@@ -1,17 +1,20 @@
-<!-- templates/quizzes/edit_quiz.html -->
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h3>Edit Quiz "{{ quiz.title }}"</h3>
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h2 class="my-2">Edit Question</h2>
         </div>
         <div class="card-body">
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-success">Save Changes</button>
+                <div class="form-group">
+                    <label for="question">Question</label>
+                    {{ form.text|as_crispy_field }}
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'quiz_detail' object.quiz.id %}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>
