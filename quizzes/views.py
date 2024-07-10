@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django import forms
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -51,25 +52,47 @@ def create_quiz(request):
 @login_required
 def add_question(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    if request.method == "POST":
+
+    if request.method == 'POST':
         question_form = QuestionForm(request.POST)
         formset = ChoiceFormSet(request.POST)
+
         if question_form.is_valid() and formset.is_valid():
             question = question_form.save(commit=False)
             question.quiz = quiz
             question.save()
-            for form in formset:
-                choice = form.save(commit=False)
-                choice.question = question
-                choice.save()
-            return redirect('quiz_detail', quiz_id=quiz.id)
+
+            valid_choices = True
+            for form in formset.forms:
+                if not form.cleaned_data.get('text'):
+                    valid_choices = False
+                    form.add_error('text', 'Choice should not be blank.')
+
+            if valid_choices:
+                choices = formset.save(commit=False)
+                for choice in choices:
+                    choice.question = question
+                    choice.save()
+
+                if 'action' in request.POST:
+                    if request.POST['action'] == 'add_another':
+                        messages.success(request, "Question and choices saved. Add another question.")
+                        return redirect('add_question', quiz_id=quiz_id)
+                    elif request.POST['action'] == 'save_exit':
+                        messages.success(request, "Question and choices saved.")
+                        return redirect('quiz_list')
+            else:
+                question.delete()  # Delete the question if choices are invalid
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         question_form = QuestionForm()
-        formset = ChoiceFormSet()
+        formset = ChoiceFormSet(queryset=Choice.objects.none())
+
     return render(request, 'quizzes/add_question.html', {
-        'question_form': question_form,
-        'formset': formset,
         'quiz': quiz,
+        'question_form': question_form,
+        'formset': formset
     })
 
 @login_required

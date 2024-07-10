@@ -10,10 +10,19 @@
             <h2 class="my-2">Add Questions and Choices to "{{ quiz.title }}"</h2>
         </div>
         <div class="card-body">
+            {% if success %}
+                <div class="alert alert-success">
+                    Question and choices were added successfully.
+                </div>
+            {% endif %}
             <form method="post" id="questionForm">
                 {% csrf_token %}
                 <div class="form-group">
+                    {{ question_form.text.label_tag }}
                     {{ question_form.text|as_crispy_field }}
+                    {% if question_form.text.errors %}
+                        <div class="text-danger">{{ question_form.text.errors }}</div>
+                    {% endif %}
                 </div>
                 <h3 class="mt-4">Choices</h3>
                 {{ formset.management_form }}
@@ -21,19 +30,26 @@
                     {% for form in formset %}
                         <div class="form-row mb-3 choice-form" data-index="{{ forloop.counter0 }}">
                             <div class="col-8">
+                                {{ form.text.label_tag }}
                                 {{ form.text|as_crispy_field }}
+                                {% if form.text.errors %}
+                                    <div class="text-danger">{{ form.text.errors }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-3">
+                                {{ form.is_correct.label_tag }}
                                 {{ form.is_correct|as_crispy_field }}
                             </div>
                             <div class="col-1">
-                                <button type="button" class="btn btn-danger remove-choice" {% if forloop.first or forloop.last %}style="display:none"{% endif %}>X</button>
+                                <button type="button" class="btn btn-danger remove-choice" {% if forloop.counter0 < 2 %}style="display:none"{% endif %}>X</button>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
                 <button type="button" class="btn btn-secondary" id="addChoice">+</button>
-                <button type="submit" class="btn btn-success mt-3">Save</button>
+                <button type="submit" name="action" value="add_another" class="btn btn-success mt-3">Save and Add Another Question</button>
+                <button type="submit" name="action" value="save_exit" class="btn btn-primary mt-3">Save and Exit</button>
+                <a href="{% url 'quiz_list' %}" class="btn btn-danger mt-3">Cancel</a>
             </form>
         </div>
     </div>
@@ -46,28 +62,29 @@
         const totalFormsInput = document.querySelector(`#id_${formsetPrefix}-TOTAL_FORMS`);
         let formIndex = parseInt(totalFormsInput.value, 10);
 
+        // Hide remove buttons for the first two choices
+        const initialChoices = document.querySelectorAll('.choice-form');
+        initialChoices.forEach((choiceForm, index) => {
+            if (index < 2) {
+                choiceForm.querySelector('.remove-choice').style.display = 'none';
+            }
+        });
+
         document.getElementById('addChoice').addEventListener('click', function () {
-            const newForm = document.querySelector('.choice-form').cloneNode(true);
+            const newForm = initialChoices[0].cloneNode(true);
+            newForm.dataset.index = formIndex;
             const newFormInputs = newForm.querySelectorAll('input');
-            
+
             newFormInputs.forEach(input => {
                 const name = input.name.replace(/\d+/, formIndex);
                 const id = input.id.replace(/\d+/, formIndex);
                 input.name = name;
                 input.id = id;
                 input.value = '';
-                if (input.type === 'checkbox') {
-                    input.checked = false;
-                }
             });
 
             const removeButton = newForm.querySelector('.remove-choice');
             removeButton.style.display = 'inline-block';
-            removeButton.addEventListener('click', function () {
-                newForm.remove();
-                totalFormsInput.value = --formIndex;
-                updateFormIndices();
-            });
 
             choicesContainer.appendChild(newForm);
             totalFormsInput.value = formIndex + 1;

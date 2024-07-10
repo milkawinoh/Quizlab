@@ -7,9 +7,18 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ['text']
+        labels = {
+            'text': 'Write Question',
+        }
+        error_messages = {
+            'text': {
+                'required': 'Question should not be blank',
+            },
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs.pop('placeholder', None)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Save'))
@@ -18,9 +27,19 @@ class ChoiceForm(forms.ModelForm):
     class Meta:
         model = Choice
         fields = ['text', 'is_correct']
+        labels = {
+            'text': 'Add Choice',
+            'is_correct': 'Is Correct',
+        }
+        error_messages = {
+            'text': {
+                'required': 'Choice should not be blank',
+            },
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['text'].widget.attrs.pop('placeholder', None)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Save'))
