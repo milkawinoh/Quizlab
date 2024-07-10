@@ -3,15 +3,15 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card shadow-sm">
-        <div class="card-header">
-            <h2 class="my-2">Delete Question</h2>
+        <div class="card-header bg-danger text-white">
+            <h2 class="my-2">Delete Quiz</h2>
         </div>
         <div class="card-body">
-            <p>Are you sure you want to delete the question: "{{ object.text }}"?</p>
+            <p>Are you sure you want to delete the quiz: "{{ object.title }}"?</p>
             <form method="post">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">Delete</button>
-                <a href="{% url 'quiz_detail' object.quiz.id %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'quiz_list' %}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>
