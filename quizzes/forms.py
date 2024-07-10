@@ -25,8 +25,7 @@ class ChoiceForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Save'))
 
-ChoiceFormSet = forms.modelformset_factory(Choice, form=ChoiceForm, extra=3)
-
+ChoiceFormSet = forms.modelformset_factory(Choice, form=ChoiceForm, extra=1)
 
 class Quizform(forms.ModelForm):
     class Meta:

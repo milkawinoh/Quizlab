@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from .forms import ChoiceForm, QuestionForm, Quizform, TakeQuizForm
+from .forms import ChoiceForm, ChoiceFormSet, QuestionForm, Quizform, TakeQuizForm
 from .models import Quiz, Question, Choice, Result
 from django.views.generic.edit import DeleteView, UpdateView
 
@@ -51,33 +51,27 @@ def create_quiz(request):
 @login_required
 def add_question(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    ChoiceFormSet = forms.modelformset_factory(Choice, form=ChoiceForm, extra=3, can_delete=True)
-
-    if request.method == 'POST':
+    if request.method == "POST":
         question_form = QuestionForm(request.POST)
-        formset = ChoiceFormSet(request.POST, queryset=Choice.objects.none())
-
+        formset = ChoiceFormSet(request.POST)
         if question_form.is_valid() and formset.is_valid():
             question = question_form.save(commit=False)
             question.quiz = quiz
             question.save()
-
             for form in formset:
-                if form.cleaned_data and not form.cleaned_data.get('DELETE'):
-                    choice = form.save(commit=False)
-                    choice.question = question
-                    choice.save()
-
+                choice = form.save(commit=False)
+                choice.question = question
+                choice.save()
             return redirect('quiz_detail', quiz_id=quiz.id)
     else:
         question_form = QuestionForm()
-        formset = ChoiceFormSet(queryset=Choice.objects.none())
-
+        formset = ChoiceFormSet()
     return render(request, 'quizzes/add_question.html', {
-        'quiz': quiz,
         'question_form': question_form,
         'formset': formset,
+        'quiz': quiz,
     })
+
 @login_required
 def take_quiz(request, quiz_id):
     quiz = Quiz.objects.get(id=quiz_id)

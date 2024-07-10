@@ -1,24 +1,102 @@
-<!-- templates/quizzes/add_choices.html -->
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add Questions{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card">
+    <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h3>Add Choices for "{{ question.text }}"</h3>
+            <h2 class="my-2">Add Questions and Choices to "{{ quiz.title }}"</h2>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="questionForm">
                 {% csrf_token %}
-                {{ formset.management_form }}
-                {% for form in formset %}
                 <div class="form-group">
-                    {{ form.as_p }}
+                    {{ question_form.text|as_crispy_field }}
                 </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-success">Save Choices</button>
+                <h3 class="mt-4">Choices</h3>
+                {{ formset.management_form }}
+                <div id="choicesContainer">
+                    {% for form in formset %}
+                        <div class="form-row mb-3 choice-form" data-index="{{ forloop.counter0 }}">
+                            <div class="col-8">
+                                {{ form.text|as_crispy_field }}
+                            </div>
+                            <div class="col-3">
+                                {{ form.is_correct|as_crispy_field }}
+                            </div>
+                            <div class="col-1">
+                                <button type="button" class="btn btn-danger remove-choice">X</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-secondary" id="addChoice">Add Choice</button>
+                <button type="submit" class="btn btn-success mt-3">Save</button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formsetPrefix = '{{ formset.prefix }}';
+        const choicesContainer = document.getElementById('choicesContainer');
+        const totalFormsInput = document.querySelector(`#id_${formsetPrefix}-TOTAL_FORMS`);
+        let formIndex = parseInt(totalFormsInput.value, 10);
+
+        // Hide remove buttons for the first two choices
+        const initialChoices = document.querySelectorAll('.choice-form');
+        initialChoices.forEach((choiceForm, index) => {
+            if (index < 2) {
+                choiceForm.querySelector('.remove-choice').style.display = 'none';
+            }
+        });
+
+        document.getElementById('addChoice').addEventListener('click', function () {
+            const newForm = initialChoices[0].cloneNode(true);
+            newForm.dataset.index = formIndex;
+            const newFormInputs = newForm.querySelectorAll('input');
+
+            newFormInputs.forEach(input => {
+                const name = input.name.replace(/\d+/, formIndex);
+                const id = input.id.replace(/\d+/, formIndex);
+                input.name = name;
+                input.id = id;
+                input.value = '';
+            });
+
+            const removeButton = newForm.querySelector('.remove-choice');
+            removeButton.style.display = 'inline-block';
+
+            choicesContainer.appendChild(newForm);
+            totalFormsInput.value = formIndex + 1;
+            formIndex++;
+        });
+
+        choicesContainer.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-choice')) {
+                const choiceForm = event.target.closest('.choice-form');
+                choiceForm.remove();
+                totalFormsInput.value = --formIndex;
+                updateFormIndices();
+            }
+        });
+
+        function updateFormIndices() {
+            const forms = choicesContainer.querySelectorAll('.choice-form');
+            forms.forEach((form, index) => {
+                form.dataset.index = index;
+                const inputs = form.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const name = input.name.replace(/\d+/, index);
+                    const id = input.id.replace(/\d+/, index);
+                    input.name = name;
+                    input.id = id;
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

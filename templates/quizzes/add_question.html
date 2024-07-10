@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% load crispy_forms_tags %}
 
 {% block title %}Add Questions{% endblock %}
@@ -7,31 +6,96 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <h2 class="my-2">Add Questions and Choices to "{{ quiz.title }}"</h2>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="questionForm">
                 {% csrf_token %}
-                <div class="mb-4">
-                    <label for="question" class="form-label">Question</label>
-                    {{ question_form.text|crispy }}
+                <div class="form-group">
+                    {{ question_form.text|as_crispy_field }}
                 </div>
                 <h3 class="mt-4">Choices</h3>
-                <div id="choices" class="mb-4">
-                    {{ formset.management_form }}
+                {{ formset.management_form }}
+                <div id="choicesContainer">
                     {% for form in formset %}
-                        <div class="mb-3">
-                            <label for="choice_{{ forloop.counter0 }}" class="form-label">Choice {{ forloop.counter }}</label>
-                            {{ form.text|crispy }}
-                            <label for="is_correct_{{ forloop.counter0 }}" class="form-label">Is Correct?</label>
-                            {{ form.is_correct|crispy }}
+                        <div class="form-row mb-3 choice-form" data-index="{{ forloop.counter0 }}">
+                            <div class="col-8">
+                                {{ form.text|as_crispy_field }}
+                            </div>
+                            <div class="col-3">
+                                {{ form.is_correct|as_crispy_field }}
+                            </div>
+                            <div class="col-1">
+                                <button type="button" class="btn btn-danger remove-choice" {% if forloop.first or forloop.last %}style="display:none"{% endif %}>X</button>
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
-                <button type="submit" class="btn btn-primary">Save Question</button>
+                <button type="button" class="btn btn-secondary" id="addChoice">+</button>
+                <button type="submit" class="btn btn-success mt-3">Save</button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formsetPrefix = '{{ formset.prefix }}';
+        const choicesContainer = document.getElementById('choicesContainer');
+        const totalFormsInput = document.querySelector(`#id_${formsetPrefix}-TOTAL_FORMS`);
+        let formIndex = parseInt(totalFormsInput.value, 10);
+
+        document.getElementById('addChoice').addEventListener('click', function () {
+            const newForm = document.querySelector('.choice-form').cloneNode(true);
+            const newFormInputs = newForm.querySelectorAll('input');
+            
+            newFormInputs.forEach(input => {
+                const name = input.name.replace(/\d+/, formIndex);
+                const id = input.id.replace(/\d+/, formIndex);
+                input.name = name;
+                input.id = id;
+                input.value = '';
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                }
+            });
+
+            const removeButton = newForm.querySelector('.remove-choice');
+            removeButton.style.display = 'inline-block';
+            removeButton.addEventListener('click', function () {
+                newForm.remove();
+                totalFormsInput.value = --formIndex;
+                updateFormIndices();
+            });
+
+            choicesContainer.appendChild(newForm);
+            totalFormsInput.value = formIndex + 1;
+            formIndex++;
+        });
+
+        choicesContainer.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-choice')) {
+                const choiceForm = event.target.closest('.choice-form');
+                choiceForm.remove();
+                totalFormsInput.value = --formIndex;
+                updateFormIndices();
+            }
+        });
+
+        function updateFormIndices() {
+            const forms = choicesContainer.querySelectorAll('.choice-form');
+            forms.forEach((form, index) => {
+                form.dataset.index = index;
+                const inputs = form.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const name = input.name.replace(/\d+/, index);
+                    const id = input.id.replace(/\d+/, index);
+                    input.name = name;
+                    input.id = id;
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}
