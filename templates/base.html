@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +23,7 @@
                         </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link text-white" href="{% url 'my_quizzes' %}">My Quizzes</a></li>
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'user_quiz_results' %}">My Results</a></li>
                         <li class="nav-item">
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
@@ -53,5 +52,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>

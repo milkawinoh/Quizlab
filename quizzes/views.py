@@ -195,3 +195,8 @@ class QuizUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('my_quizzes')
+
+@login_required
+def user_quiz_results(request):
+    results = quiz_result.objects.filter(user=request.user)
+    return render(request, 'quizzes/user_quiz_results.html', {'results': results})

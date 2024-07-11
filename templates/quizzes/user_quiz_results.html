@@ -1,0 +1,32 @@
+<!-- templates/quizzes/user_quiz_results.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Quiz Results{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">My Quiz Results</h2>
+    {% if results %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Quiz</th>
+                    <th>Score</th>
+                    <th>Date Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.quiz.title }}</td>
+                        <td>{{ result.score }} / {{ result.total_score }}</td>
+                        <td>{{ result.date_taken }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You have not taken any quizzes yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
