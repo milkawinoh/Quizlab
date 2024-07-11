@@ -6,7 +6,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from .forms import ChoiceForm, ChoiceFormSet, QuestionForm, Quizform, TakeQuizForm
-from .models import Quiz, Question, Choice, Result
+from .models import Quiz, Question, Choice, Result, UserAnswer
 from django.views.generic.edit import DeleteView, UpdateView
 
 def register(request):
@@ -97,16 +97,23 @@ def add_question(request, quiz_id):
 
 @login_required
 def take_quiz(request, quiz_id):
-    quiz = Quiz.objects.get(id=quiz_id)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     if request.method == 'POST':
         form = TakeQuizForm(request.POST, quiz=quiz)
         if form.is_valid():
             score = 0
+            user_answers = []
+
             for question in quiz.questions.all():
                 selected_choice_id = int(form.cleaned_data[f'question_{question.id}'])
-                selected_choice = Choice.objects.get(id=selected_choice_id)
+                selected_choice = get_object_or_404(Choice, id=selected_choice_id)
+                user_answers.append(UserAnswer(user=request.user, quiz=quiz, question=question, choice=selected_choice))
+
                 if selected_choice.is_correct:
                     score += 1
+
+            UserAnswer.objects.bulk_create(user_answers)
+
             result = Result.objects.create(
                 quiz=quiz,
                 user=request.user,
@@ -115,12 +122,36 @@ def take_quiz(request, quiz_id):
             return redirect('quiz_result', result_id=result.id)
     else:
         form = TakeQuizForm(quiz=quiz)
+    
     return render(request, 'quizzes/take_quiz.html', {'quiz': quiz, 'form': form})
 
 @login_required
 def quiz_result(request, result_id):
-    result = Result.objects.get(id=result_id)
-    return render(request, 'quizzes/quiz_result.html', {'result': result})
+    result = get_object_or_404(Result, id=result_id)
+    user_answers = UserAnswer.objects.filter(quiz=result.quiz, user=result.user)
+    
+    results = []
+    score = result.score
+    total = result.quiz.questions.count()
+    
+    for user_answer in user_answers:
+        correct_choice = user_answer.question.choices.filter(is_correct=True).first()
+        correct_answer_text = correct_choice.text if correct_choice else "No correct answer provided"
+
+        results.append({
+            'question': user_answer.question,
+            'user_answer': user_answer.choice.text,
+            'correct_answer': correct_answer_text,
+            'is_correct': user_answer.choice.is_correct
+        })
+    
+    context = {
+        'quiz': result.quiz,
+        'results': results,
+        'score': score,
+        'total': total
+    }
+    return render(request, 'quizzes/quiz_result.html', context)
 
 @login_required
 def quiz_list(request):

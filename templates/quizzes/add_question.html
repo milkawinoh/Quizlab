@@ -74,13 +74,24 @@
             const newForm = initialChoices[0].cloneNode(true);
             newForm.dataset.index = formIndex;
             const newFormInputs = newForm.querySelectorAll('input');
+            const newFormLabels = newForm.querySelectorAll('label');
 
             newFormInputs.forEach(input => {
                 const name = input.name.replace(/\d+/, formIndex);
                 const id = input.id.replace(/\d+/, formIndex);
                 input.name = name;
                 input.id = id;
-                input.value = '';
+
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+
+            newFormLabels.forEach(label => {
+                const newFor = label.htmlFor.replace(/\d+/, formIndex);
+                label.htmlFor = newFor;
             });
 
             const removeButton = newForm.querySelector('.remove-choice');
@@ -105,11 +116,18 @@
             forms.forEach((form, index) => {
                 form.dataset.index = index;
                 const inputs = form.querySelectorAll('input');
+                const labels = form.querySelectorAll('label');
+
                 inputs.forEach(input => {
                     const name = input.name.replace(/\d+/, index);
                     const id = input.id.replace(/\d+/, index);
                     input.name = name;
                     input.id = id;
+                });
+
+                labels.forEach(label => {
+                    const newFor = label.htmlFor.replace(/\d+/, index);
+                    label.htmlFor = newFor;
                 });
             });
         }
