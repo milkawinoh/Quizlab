@@ -2,20 +2,32 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h2 class="my-2">Edit Question</h2>
-        </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="question">Question</label>
-                    {{ form.text|as_crispy_field }}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="my-2">Edit Quiz</h3>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{% url 'quiz_detail' object.quiz.id %}" class="btn btn-secondary">Cancel</a>
-            </form>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_title">Title</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_description">Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="form-check mb-3">
+                            {{ form.is_public }}
+                            <label class="form-check-label" for="id_is_public">Make this quiz public</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="{% url 'quiz_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -156,3 +156,11 @@ class QuizDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('quiz_list')
+
+class QuizUpdateView(UpdateView):
+    model = Quiz
+    form_class = Quizform 
+    template_name = 'quizzes/edit_quiz.html'
+
+    def get_success_url(self):
+        return reverse_lazy('my_quizzes')
