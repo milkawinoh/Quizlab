@@ -200,3 +200,7 @@ class QuizUpdateView(UpdateView):
 def user_quiz_results(request):
     results = Result.objects.filter(user=request.user)
     return render(request, 'quizzes/user_quiz_results.html', {'results': results})
+
+def home(request):
+    quizzes = Quiz.objects.all()
+    return render(request, 'quizzes/home.html', {'quizzes': quizzes})

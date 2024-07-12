@@ -6,13 +6,7 @@
     <ul class="list-group">
         {% for quiz in quizzes %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="{% url 'quiz_detail' quiz.id %}">{{ quiz.title }}</a>
-            <span>
-                {% if quiz.created_by == user %}
-                <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-secondary btn-sm">Edit</a>
-                <a href="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger btn-sm">Delete</a>
-                {% endif %}
-            </span>
+            <a href="{% if user.is_authenticated %}{% url 'quiz_detail' quiz.id %}{% else %}{% url 'login' %}{% endif %}">{{ quiz.title }}</a>
         </li>
         {% endfor %}
     </ul>

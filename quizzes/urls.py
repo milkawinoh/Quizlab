@@ -1,11 +1,13 @@
 
 from django.urls import include, path
-from .views import QuizDeleteView, QuizUpdateView, login_view, register, quiz_list, take_quiz, quiz_result, create_quiz, add_question, quiz_detail, QuestionUpdateView, my_quizzes, user_quiz_results
+from .views import QuizDeleteView, QuizUpdateView,home, login_view, register, quiz_list, take_quiz, quiz_result, create_quiz, add_question, quiz_detail, QuestionUpdateView, my_quizzes, user_quiz_results
 
 
 
 urlpatterns = [
-    path('', quiz_list, name='quiz_list'),
+    path('', home, name='home'),
+    path('quizzes/', quiz_list, name='quiz_list'),
+    #path('', quiz_list, name='quiz_list'),
     path('quiz/<int:quiz_id>/take/', take_quiz, name='take_quiz'),
     path('quiz/<int:result_id>/result/', quiz_result, name='quiz_result'),
     path('quiz/create/', create_quiz, name='create_quiz'),

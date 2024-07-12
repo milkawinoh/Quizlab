@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +12,7 @@
     <header class="bg-dark text-white p-3">
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <a class="navbar-brand" href="{% url 'quiz_list' %}">QuizApp</a>
+                <a class="navbar-brand" href="{% url 'home' %}">QuizApp</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -24,20 +22,25 @@
                             <a class="nav-link text-white" href="{% url 'quiz_list' %}">Home</a>
                         </li>
                         {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'my_quizzes' %}">My Quizzes</a></li>
                         <li class="nav-item">
-                            <form method="post" action="{% url 'logout' %}">
+                            <a class="nav-link text-white" href="{% url 'my_quizzes' %}">My Quizzes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'user_quiz_results' %}">My Results</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="form-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link nav-link text-white" style="padding: 0;">Logout</button>
                             </form>
                         </li>
                         {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="{% url 'login' %}">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="{% url 'signup' %}">Signup</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="{% url 'signup' %}">Signup</a>
+                        </li>
                         {% endif %}
                     </ul>
                 </div>
@@ -53,5 +56,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>

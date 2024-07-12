@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to QuizApp{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Welcome to QuizApp</h1>
+        <p class="lead">Test your knowledge with our quizzes. Create your own and challenge your friends!</p>
+        <hr class="my-4">
+        <p>Browse our quizzes or sign up to create your own.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'signup' %}" role="button">Sign Up</a>
+        <a class="btn btn-secondary btn-lg" href="{% url 'login' %}" role="button">Login</a>
+    </div>
+    <h2 class="my-4">Available Quizzes</h2>
+    <ul class="list-group">
+        {% for quiz in quizzes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% if user.is_authenticated %}{% url 'quiz_detail' quiz.id %}{% else %}{% url 'login' %}{% endif %}">
+                {{ quiz.title }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
