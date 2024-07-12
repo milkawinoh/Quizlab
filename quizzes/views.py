@@ -198,5 +198,5 @@ class QuizUpdateView(UpdateView):
 
 @login_required
 def user_quiz_results(request):
-    results = quiz_result.objects.filter(user=request.user)
+    results = Result.objects.filter(user=request.user)
     return render(request, 'quizzes/user_quiz_results.html', {'results': results})
